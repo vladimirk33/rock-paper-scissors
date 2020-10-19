@@ -11,6 +11,9 @@ LOSES = (("rock", "paper"),
 
 def human_move():
     user_move = input()
+    while user_move not in ("rock", "paper", "scissors", "!exit"):
+        print("Invalid input")
+        user_move = input()
     return user_move
 
 
@@ -31,9 +34,12 @@ def choose_winner(human_move, computer_move):
 
 
 def main():
-    human = human_move()
-    computer = computer_move()
-    choose_winner(human, computer)
+    human = None
+    while human != "!exit":
+        human = human_move()
+        computer = computer_move()
+        choose_winner(human, computer)
+    print("Bye!")
 
 
 if __name__ == "__main__":
