@@ -1,16 +1,43 @@
 import random
 
-MOVES = ("rock", "paper", "scissors")
-WINS = (("paper", "rock"),
-        ("scissors", "paper"),
-        ("rock", "scissors"))
-LOSES = (("rock", "paper"),
-         ("paper", "scissors"),
-         ("scissors", "rock"))
+GAME_CASES = {}
+WINNING_CASES = {
+    'water': ['scissors', 'fire', 'rock', 'hun', 'lightning', 'devil', 'dragon'],
+    'dragon': ['snake', 'scissors', 'fire', 'rock', 'gun', 'lightning', 'devil'],
+    'devil': ['tree', 'human', 'snake', 'scissors', 'fire', 'rock', 'gun'],
+    'lightning': ['gun', 'rock', 'fire', 'scissors', 'snake', 'human', 'tree'],
+    'gun': ['rock', 'fire', 'scissors', 'snake', 'human', 'tree', 'wolf'],
+    'rock': ['fire', 'scissors', 'snake', 'human', 'tree', 'wolf', 'sponge'],
+    'fire': ['scissors', 'snake', 'human', 'tree', 'wolf', 'sponge', 'paper'],
+    'scissors': ['snake', 'human', 'tree', 'wolf', 'sponge', 'paper', 'air'],
+    'snake': ['human', 'tree', 'wolf', 'sponge', 'paper', 'air', 'water'],
+    'human': ['tree', 'wolf', 'sponge', 'paper', 'air', 'water', 'dragon'],
+    'tree': ['wolf', 'sponge', 'paper', 'air', 'water', 'dragon', 'devil'],
+    'wolf': ['sponge', 'paper', 'air', 'water', 'dragon', 'devil', 'lightning'],
+    'sponge': ['paper', 'air', 'water', 'dragon', 'devil', 'lightning', 'gun'],
+    'paper': ['air', 'water', 'dragon', 'devil', 'lightning', 'gun', 'rock'],
+    'air': ['water', 'dragon', 'devil', 'lightning', 'gun', 'rock', 'fire'],
+}
+
+
+def choose_option(option):
+    if option == '':
+        GAME_CASES['rock'] = WINNING_CASES['rock']
+        GAME_CASES['paper'] = WINNING_CASES['paper']
+        GAME_CASES['scissors'] = WINNING_CASES['scissors']
+        return GAME_CASES
+    else:
+        option_list = option.split(",")
+        for option in option_list:
+            if option in WINNING_CASES:
+                GAME_CASES[option] = WINNING_CASES[option]
 
 
 def read_player_score(name):
-    file = open("rating.txt", "r+", encoding="utf-8")
+    try:
+        file = open("rating.txt", "r+", encoding="utf-8")
+    except (FileExistsError, FileNotFoundError):
+        file = open("rating.txt", "w+", encoding="utf-8")
     for player in file.readlines():
         player = player.split()
         if player[0] == name:
@@ -46,44 +73,53 @@ def write_player_score(name, mode):
 
 def human_move():
     user_move = input()
-    while user_move not in ("rock", "paper", "scissors", "!rating", "!exit"):
+    while user_move not in GAME_CASES.keys() \
+            and user_move not in ("!rating", "!exit"):
         print("Invalid input")
         user_move = input()
     return user_move
 
 
 def computer_move():
-    ai_move = random.choice(MOVES)
+    ai_move = random.choice(list(GAME_CASES.keys()))
     return ai_move
 
 
 def choose_winner(human_move, computer_move, name):
-    for human, computer in WINS:
-        if human_move == human and computer_move == computer:
-            print(f"Well done. The computer chose {computer_move} and failed")
-            mode = "win"
-            write_player_score(name, mode)
-    for human, computer in LOSES:
-        if human_move == human and computer_move == computer:
-            print(f"Sorry, but the computer chose {computer_move}")
-    if human_move == computer_move:
+    if computer_move in GAME_CASES[human_move]:
+        print(f"Well done. The computer chose {computer_move} and failed")
+        mode = "win"
+        write_player_score(name, mode)
+    elif human_move == computer_move:
         print(f"There is a draw ({computer_move})")
         mode = "tie"
         write_player_score(name, mode)
+    else:
+        print(f"Sorry, but the computer chose {computer_move}")
 
 
 def main():
     name = input("Enter your name: ")
     print("Hello,", name)
     read_player_score(name)
-    human = None
-    while human != "!exit":
+    print("Choose the mode: ")
+    for item in list(WINNING_CASES.keys()):
+        print(f"- {item}")
+    print("Separate by comma. Example: gun,devil,dragon")
+    choose_option(input("> "))
+    print("Write \"!rating\" to look your score.")
+    print("Write \"!exit\" to quit the game.")
+    print("Okay, let's start")
+    while True:
+        human = human_move()
         if human == "!rating":
             print("Your rating:", read_player_score(name))
-        human = human_move()
+            continue
+        elif human == "!exit":
+            break
         computer = computer_move()
         choose_winner(human, computer, name)
-    print("Bye!")
+    print("\nBye!")
 
 
 if __name__ == "__main__":
