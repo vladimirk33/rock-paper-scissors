@@ -25,7 +25,6 @@ def choose_option(option):
         GAME_CASES['rock'] = WINNING_CASES['rock']
         GAME_CASES['paper'] = WINNING_CASES['paper']
         GAME_CASES['scissors'] = WINNING_CASES['scissors']
-        return GAME_CASES
     else:
         option_list = option.split(",")
         for option in option_list:
